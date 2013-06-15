@@ -25,6 +25,7 @@ describe User do
   it { should respond_to(:password_digest) }
   it { should respond_to(:password) }
   it { should respond_to(:password_confirmation) }
+  it { should respond_to(:remember_token) }
   it { should respond_to(:authenticate) }
   
   it { should be_valid }
@@ -73,27 +74,27 @@ describe User do
     end
 
     it { should_not be_valid }
-  end
+  end  #...email address is already taken
   
   describe "when password is not present" do
   	before { @user.password = @user.password_confirmation = " " }
   	it { should_not be_valid }
-  end
+  end  #...password is not present
   
   describe "when password doesn't match confirmation" do
   	before { @user.password_confirmation = "mismatch" }
   	it { should_not be_valid }
-	end
+	end  #...password doesn't match
 	
 	describe "when password confirmation is nil" do
   	before { @user.password_confirmation = nil }
   	it { should_not be_valid }
-	end
+	end  #...password confirmation is nil
 	
 	describe "with a password that's too short" do
     before { @user.password = @user.password_confirmation = "a" * 5 }
     it { should be_invalid }
-  end
+	end  #...password that's too short
 
   describe "return value of authenticate method" do
     before { @user.save }
@@ -101,15 +102,20 @@ describe User do
 
     describe "with valid password" do
       it { should == found_user.authenticate(@user.password) }
-    end
+    end  #...valid password
 
     describe "with invalid password" do
       let(:user_for_invalid_password) { found_user.authenticate("invalid") }
 
       it { should_not == user_for_invalid_password }
       specify { user_for_invalid_password.should be_false }
-    end
+    end  #...invalid password
     
-  end
+  end  # ...authenticate method
   
-end
+  describe "remember token" do
+    before { @user.save }
+    its(:remember_token) { should_not be_blank }
+  end  # remember token
+  
+end  # describe user
