@@ -16,8 +16,8 @@ describe "Authentication" do
 			describe "after visiting another page" do
 				before { click_link "Home" }
 				it { should_not have_selector('div.alert.alert-error') }
-			end
-		end# End of invalid block
+			end  # after visiting another page
+		end  # with invalid information
 
 		describe "with valid information" do
 			let(:user) { FactoryGirl.create(:user) }
@@ -32,26 +32,42 @@ describe "Authentication" do
 			describe "followed by signout" do
 				before { click_link('Sign out') }
 				it { should have_link('Sign in') }
-			end
-		end  # End of valid block
-	end  # End of signin page block
+			end  # followed by signout
+		end  # with valid information
+	end  # signin page
 
 	describe "authorization" do
 
 		describe "for non-signed-in users" do
 			let(:user) { FactoryGirl.create(:user) }
+			
+			describe "when attempting to visit a protected page" do
+        before do
+          visit edit_user_path(user)
+          fill_in "Email",    with: user.email
+          fill_in "Password", with: user.password
+          click_button "Sign in"
+        end
+
+        describe "after signing in" do
+
+          it "should render the desired protected page" do
+            page.should have_selector('title', text: 'Edit user')
+          end  # should render protected page
+        end  # after signing in
+   		end  # attempting to visit protect page
 
 			describe "in the Users controller" do
 
 				describe "visiting the edit page" do
 					before { visit edit_user_path(user) }
 					it { should have_selector('title', 	text: 'Sign in')}
-				end
+				end  # visiting the edit page
 
 				describe "submitting to the update action" do
 					before { put user_path(user) }
 					specify { response.should redirect_to(signin_path) }
-				end
+				end  # submitting to the update action
 
 			end  # authorization, non-signed-in users, in the Users controller
 
@@ -76,4 +92,4 @@ describe "Authentication" do
 
 	end  # authorization block
 
-end # End of Authentication block
+end # Authentication
